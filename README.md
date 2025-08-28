@@ -4,6 +4,8 @@
 
 🚀 LangChain for Swift. Optimized for iOS, macOS, watchOS (part) and visionOS.(beta)
 
+**Forked to update Supabase dependency
+
 This is a pure client library, no server required
 
 ## Setup
