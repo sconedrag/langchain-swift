@@ -29,31 +29,31 @@ public class Supabase: VectorStore {
     
     public override func similaritySearch(query: String, k: Int) async -> [MatchedModel] {
         let params = SearchVectorParams(query_embedding: await embeddings.embedQuery(text: query), match_count: k)
-        let rpcQuery = client.rpc("match_documents", params: params)
-
         do {
-            let response: [MatchedModel] = try await rpcQuery.execute().value // Where DataModel is the model of the data returned by the function
+            let response: [MatchedModel] = try await client
+                .rpc("match_documents", params: params)
+                .execute()
+                .value
 //            print("### RPC Returned: \(response.first!.content!)")
             return response
-           } catch {
-               print("### RPC Error: \(error)")
-               return []
-           }
+        } catch {
+            print("### RPC Error: \(error)")
+            return []
+        }
         
     }
     
     public override func addText(text: String, metadata: [String: String]) async {
         let embedding = await embeddings.embedQuery(text: text)
         let insertData = DocModel(content: text, embedding: embedding, metadata: metadata)
-        let query = client
-            .from("documents")
-            .insert(insertData)
-            .select() // Return the inserted data
-//            .select(columns: "id") // specifiy which column names to be returned. Leave it empty for all columns
-            .single() // specify you want to return a single value.
-        
         do {
-            let _: String = try await query.execute().value
+            let _: DocModel = try await client
+                .from("documents")
+                .insert(insertData)
+                .select()
+                .single()
+                .execute()
+                .value
 //          print("### Save Returned: \(response)")
         } catch {
             print("### Insert Error: \(error)")
