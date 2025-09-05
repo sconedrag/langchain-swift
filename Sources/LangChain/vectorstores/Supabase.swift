@@ -29,6 +29,7 @@ public class Supabase: VectorStore {
     
     public override func similaritySearch(query: String, k: Int) async -> [MatchedModel] {
         let params = SearchVectorParams(query_embedding: await embeddings.embedQuery(text: query), match_count: k)
+        
         do {
             let response: [MatchedModel] = try await client
                 .rpc("match_documents", params: params)
@@ -40,12 +41,12 @@ public class Supabase: VectorStore {
             print("### RPC Error: \(error)")
             return []
         }
-        
     }
     
     public override func addText(text: String, metadata: [String: String]) async {
         let embedding = await embeddings.embedQuery(text: text)
         let insertData = DocModel(content: text, embedding: embedding, metadata: metadata)
+        
         do {
             let _: DocModel = try await client
                 .from("documents")
